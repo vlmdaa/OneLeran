@@ -2,7 +2,7 @@
 泰拉瑞亚游戏桥接模块 - 作为 Lumi 子模块运行
 管理游戏连接、运行 survival_loop、事件回调、目标队列
 
-可独立测试：python terraria_bridge.py
+可独立测试：python -m games.terraria.bridge
 """
 
 import queue
@@ -147,11 +147,11 @@ class TerrariaBridge:
 
         auto_launch: 游戏没运行时自动启动联机环境（服务器+两个客户端）
         """
-        from terraria_bot import TerrariaBridge as TerrariaConnection
-        from terraria_bot import BehaviorEngine, TaskRunner
+        from .bot import TerrariaBridge as TerrariaConnection
+        from .bot import BehaviorEngine, TaskRunner
 
         if auto_launch:
-            from terraria_bot import find_and_activate_window
+            from .bot import find_and_activate_window
             print("  [terraria_bridge] 检测游戏窗口...")
             game_running = (find_and_activate_window("泰拉瑞亚")
                             or find_and_activate_window("Terraria"))
@@ -244,7 +244,7 @@ class TerrariaBridge:
 
     def set_goal(self, goal_type, target, reason="", params=None):
         """慢脑/快脑下达目标 → 清空旧目标 → 入队"""
-        from terraria_bot import StrategicGoal
+        from .bot import StrategicGoal
 
         # 清空旧目标
         while not self.goal_queue.empty():
@@ -362,7 +362,7 @@ class TerrariaBridge:
         """survival_loop 线程入口，带独立日志文件 + 错误摘要"""
         import os, sys
         from datetime import datetime
-        from terraria_bot import ErrorSummaryWriter, TeeWriterWithSummary
+        from .bot import ErrorSummaryWriter, TeeWriterWithSummary
 
         os.makedirs("logs", exist_ok=True)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -394,7 +394,7 @@ class TerrariaBridge:
 
     def _run_survival_loop(self):
         """从 terraria_bot.survival_loop 改造，用外部 goal_queue + 事件回调"""
-        from terraria_bot import _is_hostile, StrategicGoal
+        from .bot import _is_hostile, StrategicGoal
 
         conn = self._conn
         engine = self._engine

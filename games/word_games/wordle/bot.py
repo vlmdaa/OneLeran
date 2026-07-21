@@ -8,19 +8,19 @@ Wordle Bot — 混合决策引擎（信息熵算法 + LLM 选词解说）
 
 运行方式：
   # 终端模式（自带 Wordle，不需要浏览器）
-  python wordle_bot.py
+  python -m games.word_games.wordle.bot
 
   # 终端模式，指定答案
-  python wordle_bot.py --answer crane
+  python -m games.word_games.wordle.bot --answer crane
 
   # 批量测试（纯算法，不调用 LLM）
-  python wordle_bot.py --batch 100
+  python -m games.word_games.wordle.bot --batch 100
 
   # 浏览器模式（Playwright 控制网页 Wordle）
-  python wordle_bot.py --browser
+  python -m games.word_games.wordle.bot --browser
 
   # 纯算法模式（不调用 LLM）
-  python wordle_bot.py --no-llm
+  python -m games.word_games.wordle.bot --no-llm
 """
 
 import argparse
@@ -37,8 +37,8 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-import solver_client  # 求解丢独立子进程，避免重算占CPU把皮套动作挤卡（毛病三）
-from wordle_engine import (
+from games.word_games import solver_client  # 求解丢独立子进程，避免重算占CPU把皮套动作挤卡（毛病三）
+from .engine import (
     OPTIMAL_FIRST_GUESS,
     PATTERN_ALL_GREEN,
     ConstraintTracker,
@@ -689,7 +689,7 @@ class BrowserGame:
         self.page = None
         self.browser = None
         self.playwright = None
-        self.html_path = Path(__file__).parent / "wordle.html"
+        self.html_path = Path(__file__).parent / "index.html"
 
     def _start_browser(self):
         """启动浏览器并打开 Wordle 页面"""

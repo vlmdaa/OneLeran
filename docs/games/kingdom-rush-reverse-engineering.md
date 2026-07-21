@@ -13,13 +13,13 @@
 ## 注入架构
 
 ```
-patch_kingdom_rush.py → 修改 exe 内嵌 ZIP:
+games/kingdom_rush/patch.py → 修改 exe 内嵌 ZIP:
   main.lua (原始) → _kr_main_orig.lua (重命名保留)
   main.lua (新wrapper) → 加载原始 + hook love.update
   bridge_server.lua → TCP Server 端口 9878
 
-kingdom_rush_bot.py → Python TCP 客户端（交互探测/观察/AI）
-kingdom_rush_bridge.lua → Lua TCP 桥接代码源文件
+games/kingdom_rush/bot.py → Python TCP 客户端（交互探测/观察/AI）
+games/kingdom_rush/bridge.lua → Lua TCP 桥接代码源文件
 ```
 
 ## 游戏核心全局对象
@@ -809,7 +809,7 @@ TOWER_SIZE_LARGE, UNIT_SIZE_LARGE, UNIT_SIZE_MEDIUM, UNIT_SIZE_NONE
 
 | 文件 | 作用 |
 |------|------|
-| `patch_kingdom_rush.py` | exe 注入工具 (修改 ZIP, 注入 bridge) |
-| `kingdom_rush_bridge.lua` | Lua TCP 桥接服务端源码 |
-| `kingdom_rush_bot.py` | Python TCP 客户端 (交互/观察/AI) |
+| `games/kingdom_rush/patch.py` | exe 注入工具 (修改 ZIP, 注入 bridge) |
+| `games/kingdom_rush/bridge.lua` | Lua TCP 桥接服务端源码 |
+| `games/kingdom_rush/bot.py` | Python TCP 客户端 (交互/观察/AI) |
 | `kingdom_rush_notes.md` | 本文件 — 逆向工程笔记 |

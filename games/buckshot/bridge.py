@@ -2,7 +2,7 @@
 恶魔轮盘游戏桥接模块 - 作为 Lumi 子模块运行
 TCP 连接 Godot BridgeMod，确定性决策就地执行，不确定局面投递给 Lumi 快脑
 
-可独立运行（调试用）：python buckshot_bridge.py
+可独立运行（调试用）：python -m games.buckshot.bridge
 """
 
 import socket
@@ -15,7 +15,7 @@ import threading
 from datetime import datetime
 from dataclasses import dataclass, field
 
-from buckshot_prompt_context import (
+from .prompt_context import (
     build_available_actions,
     command_from_chinese_action,
     item_to_cn,

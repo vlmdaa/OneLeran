@@ -2,7 +2,7 @@
 Kingdom Rush 游戏桥接模块 - 作为 Lumi 子模块运行
 封装 auto_loop 为后台线程，通过 event_callback 推送游戏事件给 lumi.py
 
-可独立测试：python kingdom_rush_bridge.py
+可独立测试：python -m games.kingdom_rush.bridge
 """
 
 import subprocess
@@ -94,8 +94,8 @@ class KingdomRushBridge:
     def _loop_wrapper(self):
         """后台线程入口：连接 → auto_loop → 清理"""
         try:
-            from kingdom_rush_bot import KingdomRushBot
-            from kingdom_rush_ai import auto_loop, launch_game
+            from .bot import KingdomRushBot
+            from .ai import auto_loop, launch_game
 
             bot = KingdomRushBot()
             bot.host = self._host
@@ -106,7 +106,7 @@ class KingdomRushBridge:
             if not bot.connect(retries=3, interval=1, quiet=True):
                 self._push_event("game_event",
                     {"text": "游戏未运行，自动启动中...", "event": "launching"})
-                from kingdom_rush_ai import trigger_launcher_start
+                from .ai import trigger_launcher_start
                 if not launch_game():
                     self._push_event("game_event",
                         {"text": "游戏启动失败", "event": "launch_fail"})

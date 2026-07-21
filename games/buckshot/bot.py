@@ -3,10 +3,10 @@
 通过 TCP 连接游戏内的 BridgeMod，接收状态，发送动作指令
 
 用法:
-    python buckshot_bot.py                # 默认：混合引擎（无透视 + 代码策略 + LLM 兜底）
-    python buckshot_bot.py --legacy       # 旧版：透视 + 确定性引擎（不调用 LLM）
-    python buckshot_bot.py --watch        # 仅观察模式（不操作）
-    python buckshot_bot.py --no-auto      # 禁用全自动化（需手动启动游戏，只保留战斗AI）
+    python -m games.buckshot.bot                # 默认：混合引擎（无透视 + 代码策略 + LLM 兜底）
+    python -m games.buckshot.bot --legacy       # 旧版：透视 + 确定性引擎（不调用 LLM）
+    python -m games.buckshot.bot --watch        # 仅观察模式（不操作）
+    python -m games.buckshot.bot --no-auto      # 禁用全自动化（需手动启动游戏，只保留战斗AI）
 """
 
 import socket

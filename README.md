@@ -4,6 +4,10 @@
 
 *Battle-tested by a real daily livestream.*
 
+[![CI](https://github.com/MIO-456/Lumi_Nox/actions/workflows/ci.yml/badge.svg)](https://github.com/MIO-456/Lumi_Nox/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/MIO-456/Lumi_Nox)](https://github.com/MIO-456/Lumi_Nox/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ![Two AI characters co-hosting a livestream](docs/assets/hero.png)
 
 **▶ Watch Lumi & Nox co-host live on Bilibili: [Lumi和Nox-AI搭档](https://space.bilibili.com/544387533)**
@@ -47,14 +51,14 @@ files below.
   realtime engine so both pipelines sound identical.
 - **Hearing** (`lumi_asr.py`) — streaming speech recognition for live voice input.
 - **Long-term memory** (`memory/`) — per-viewer and self memory in SQLite, distilled
-  by an LLM, so the characters recognize regulars and stay consistent across streams.
-- **Playing games** (`buckshot_*.py`, `terraria_*.py`, `kingdom_rush_*.py`,
-  `wordle_*.py`, `handle_*.py`) — bridges that let the AIs play games as stream
+  by an LLM, with deterministic membership facts and time decay so stale topics stop
+  dominating later streams.
+- **Playing games** (`games/`) — bridges that let the AIs play games as stream
   segments, making decisions and calling tools while they narrate. **Buckshot
   Roulette** (turn-based), **Terraria** (**A\* pathfinding** + a **five-layer goal
   planner** over a tModLoader mod), **Kingdom Rush** — a tower-defense AI driven by a
   **LuaJIT mod reverse-engineered into the game's LÖVE engine** (see
-  [docs/kingdom-rush-reverse-engineering.md](docs/kingdom-rush-reverse-engineering.md))
+  [reverse-engineering notes](docs/games/kingdom-rush-reverse-engineering.md))
   — and two word games, **Wordle** and **Handle** (汉兜, a Chinese-idiom Wordle), each
   a self-contained web frontend + an entropy solver that runs in a **separate worker
   process**, so the heavy mid-game search never stalls the main loop. The Kingdom Rush
@@ -70,43 +74,22 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
 ## Repository layout
 
 ```
-main.py                    # runnable demo — two AI characters co-hosting (no keys needed)
-realtime_chat.py           # dual end-to-end session pool, attribution, audio routing
-realtime_chat_protocol.py  # doubao SC2.0 websocket protocol codec
-conversation.py            # turn orchestration + cross-character history mirroring
-web_search.py              # live web-search augmentation for the fast brain
-viewer_name.py             # viewer-name normalization + multi-join folding
-fast_brain.py              # per-character lightweight LLM for tool-driven decisions
-speaker_scheduler.py       # who-speaks-next: @-mentions, hand-offs, viewer queue
-speech_output_arbiter.py   # one-voice-at-a-time arbitration (QUEUE/DROP/INTERRUPT)
-event_bus.py               # in-process pub/sub + request/response
-state_machine.py           # global stream state + transitions
-run_architecture.py        # single source of truth: text vs realtime pipeline
-voice_config.py            # per-character runtime config (example characters)
-lumi_tts.py                # streaming TTS + subtitles
-cosyvoice_tts.py           # CosyVoice voice-cloned synthesizer
-tts_emitter.py             # picks the voice output path per run architecture
-lumi_asr.py                # streaming speech recognition
-memory/                    # long-term per-viewer & self memory (SQLite + LLM extraction)
-buckshot_bot.py            # Buckshot Roulette: decision engine
-buckshot_bridge.py         # TCP bridge to the game
-buckshot_prompt_context.py # game state -> prompt context
-terraria_bot.py            # Terraria bot: A* pathfinding + five-layer goal planning
-terraria_bridge.py         # TCP bridge to a tModLoader mod
-kingdom_rush_ai.py         # Kingdom Rush: tower-defense AI / strategy
-kingdom_rush_bot.py        # game-loop driver
-kingdom_rush_bridge.py     # Python side of the TCP bridge
-kingdom_rush_bridge.lua    # LuaJIT mod injected into the game's LOVE engine
-kr_strategy_llm.py         # LLM strategy hook
-kr_battle_history.py       # Kingdom Rush battle-history tracking
-patch_kingdom_rush.py      # injects the bridge mod into a local game install
-wordle_bot.py / wordle_bridge.py / wordle_engine.py / wordle.html      # Wordle solver + self-contained frontend
-handle_bridge.py / handle_engine.py / handle.html                      # Handle (汉兜, Chinese-idiom Wordle)
-solver_worker.py / solver_client.py                                    # word-game entropy solver in a separate worker process
-docs/ARCHITECTURE.md       # full design
-docs/terraria-behavior-tree.md            # Terraria bot's atomic-behavior architecture
-docs/kingdom-rush-reverse-engineering.md  # the LuaJIT reverse-engineering notes
+main.py                  # zero-setup co-hosting demo
+event_bus.py             # coordination backbone
+state_machine.py         # global stream state
+speaker_scheduler.py     # turn selection and @-mention routing
+speech_output_arbiter.py # one voice holds the floor at a time
+conversation.py          # text-pipeline orchestration and history mirroring
+realtime_chat*.py        # dual realtime speech-to-speech sessions
+lumi_asr.py / lumi_tts.py / cosyvoice_tts.py / tts_emitter.py
+memory/                  # SQLite memory, extraction, decay and deterministic facts
+games/                   # one directory per game; shared word-game worker
+docs/                    # architecture and game engineering notes
+tests/                   # zero-dependency public-core checks
 ```
+
+See [games/README.md](games/README.md) for game entry points and
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete data flow.
 
 ## Getting started
 
@@ -130,6 +113,10 @@ intentionally kept closed.
   OpenAI, …). The realtime speech-to-speech voice currently uses **doubao SC2.0**
   and the streaming TTS/ASR use **DashScope** (CosyVoice / fun-asr). Put your keys
   in `.env`.
+- **Your own voice IDs** — the private cloned-voice registry is not published.
+  `voice_registry.py` resolves the placeholder characters from
+  `CHARACTER_A_VOICE_ID` / `CHARACTER_B_VOICE_ID` and optional matching
+  `*_VOICE_MODEL` variables, otherwise TTS falls back to a system voice.
 - **A Live2D model** — the avatar / motion / expression layer is tied to specific
   character models and is **not** included; bring your own and wire it in.
 - **The game** — the game bridge talks to a commercial game over TCP; you supply
@@ -137,14 +124,27 @@ intentionally kept closed.
 - **Personas** — `voice_config.py` ships placeholder example characters; the real
   Lumi / Nox persona prompts and worldview are intentionally closed.
 
-Vision, drawing, the live director / control console, and the other game bots run
-in the production system and are opened incrementally (see Roadmap).
+Vision, drawing, the Live2D motion/expression layer, voiceprints, and the live
+director/control console remain in the private production system.
+
+## Verification
+
+The public core keeps its smoke path free of external services:
+
+```bash
+python main.py
+python -m unittest discover -s tests -v
+python -m compileall -q .
+```
+
+The same checks run on every push and pull request through GitHub Actions.
 
 ## Roadmap
 
-This is an open window into a real, running system — not a product roadmap. More of
-it opens over time as the daily stream evolves: more game bots (Wordle, Handle, …)
-and other subsystems, as time allows.
+This is an open window into a real, running system — not a turnkey product roadmap.
+Public releases are curated snapshots; the private livestream runtime may move ahead
+between milestones. More subsystems open only after their privacy, licensing and
+dependency boundaries have been reviewed.
 
 ## License & open-core
 

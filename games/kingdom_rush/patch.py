@@ -3,10 +3,10 @@ Kingdom Rush Mod 注入工具
 将 TCP Bridge 注入到 LÖVE 引擎的 Kingdom Rush exe 中
 
 用法:
-    python patch_kingdom_rush.py [game_folder]
+    python -m games.kingdom_rush.patch [game_folder]
 
 示例:
-    python patch_kingdom_rush.py "C:\Games\Kingdom Rush 1"
+    python -m games.kingdom_rush.patch "C:\\Games\\Kingdom Rush 1"
 
 效果:
     - 备份原始 exe 为 *.exe.bak
@@ -180,7 +180,7 @@ def patch_exe(game_folder, bridge_lua_path=None):
     # 读取 bridge lua 代码
     if bridge_lua_path is None:
         bridge_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        'kingdom_rush_bridge.lua')
+                                        'bridge.lua')
 
     with open(bridge_lua_path, 'r', encoding='utf-8') as f:
         bridge_lua = f.read()

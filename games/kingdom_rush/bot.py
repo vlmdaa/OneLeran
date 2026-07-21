@@ -3,9 +3,9 @@ Kingdom Rush AI Bot - TCP 客户端
 连接到游戏内注入的 BridgeMod TCP 服务端
 
 用法:
-    python kingdom_rush_bot.py              # 交互模式
-    python kingdom_rush_bot.py --watch      # 观察模式
-    python kingdom_rush_bot.py --explore    # 深度探索
+    python -m games.kingdom_rush.bot              # 交互模式
+    python -m games.kingdom_rush.bot --watch      # 观察模式
+    python -m games.kingdom_rush.bot --explore    # 深度探索
 """
 
 import socket

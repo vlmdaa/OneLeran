@@ -5,7 +5,7 @@
 最坏情况退化为改造前的行为。
 
 用法（游戏 Bot 里）：
-    import solver_client
+    from games.word_games import solver_client
     top = solver_client.best_guesses_or_fallback("wordle", candidates, 5, get_best_guesses)
 """
 

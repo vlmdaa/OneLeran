@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 import realtime_chat
 import run_architecture
 import cosyvoice_tts
-import 音色库
+import voice_registry as 音色库
 from tts_emitter import BorrowE2EEmitter, IndependentTTSEmitter
 
 load_dotenv()

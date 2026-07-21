@@ -23,7 +23,7 @@ import lumi_tts
 import speech_output_arbiter
 import web_search
 from viewer_name import normalize_viewer_name
-from buckshot_prompt_context import (
+from games.buckshot.prompt_context import (
     COMBAT_PHASES,
     LOADING_PHASES,
     build_available_actions,
@@ -707,7 +707,7 @@ def chat_and_speak(
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from buckshot_bridge import BUCKSHOT_GAME_PROMPT
+            from games.buckshot.bridge import BUCKSHOT_GAME_PROMPT
             game_prompt = BUCKSHOT_GAME_PROMPT
             game_label = "恶魔轮盘"
     if not game_request and _wordle_bridge:
@@ -715,7 +715,7 @@ def chat_and_speak(
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from wordle_bridge import WORDLE_GAME_PROMPT
+            from games.word_games.wordle.bridge import WORDLE_GAME_PROMPT
             game_prompt = WORDLE_GAME_PROMPT
             game_label = "Wordle"
     if not game_request and _handle_bridge:
@@ -723,7 +723,7 @@ def chat_and_speak(
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from handle_bridge import HANDLE_GAME_PROMPT
+            from games.word_games.handle.bridge import HANDLE_GAME_PROMPT
             game_prompt = HANDLE_GAME_PROMPT
             game_label = "汉兜"
 
@@ -778,7 +778,7 @@ def chat_and_speak(
     # 泰拉瑞亚：注入游戏提示词 + 可选工具（不走 game_request 模式）
     _terraria_tools_injected = False
     if not game_request and _terraria_bridge and _terraria_bridge.running and _terraria_game_ready:
-        from terraria_bridge import (
+        from games.terraria.bridge import (
             TERRARIA_GAME_PROMPT_CONTROLLER,
             TERRARIA_GAME_PROMPT_SPECTATOR,
             TERRARIA_GOAL_TOOL,
@@ -791,7 +791,7 @@ def chat_and_speak(
             system_content += "\n" + TERRARIA_GAME_PROMPT_SPECTATOR
     # Kingdom Rush：纯解说，不需要工具
     if not game_request and _kr_bridge and _kr_bridge.running and _kr_game_ready:
-        from kingdom_rush_bridge import KR_GAME_PROMPT_CONTROLLER, KR_GAME_PROMPT_SPECTATOR
+        from games.kingdom_rush.bridge import KR_GAME_PROMPT_CONTROLLER, KR_GAME_PROMPT_SPECTATOR
         if is_game_controller(ctx, ai_speaker):
             system_content += "\n" + KR_GAME_PROMPT_CONTROLLER
         else:
@@ -1135,7 +1135,7 @@ def proactive_speak(ctx: ConversationContext, vad_model=None, cable_index=None, 
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from buckshot_bridge import BUCKSHOT_GAME_PROMPT
+            from games.buckshot.bridge import BUCKSHOT_GAME_PROMPT
             game_prompt = BUCKSHOT_GAME_PROMPT
             game_label = "恶魔轮盘"
     if not game_request and _wordle_bridge:
@@ -1143,7 +1143,7 @@ def proactive_speak(ctx: ConversationContext, vad_model=None, cable_index=None, 
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from wordle_bridge import WORDLE_GAME_PROMPT
+            from games.word_games.wordle.bridge import WORDLE_GAME_PROMPT
             game_prompt = WORDLE_GAME_PROMPT
             game_label = "Wordle"
     if not game_request and _handle_bridge:
@@ -1151,7 +1151,7 @@ def proactive_speak(ctx: ConversationContext, vad_model=None, cable_index=None, 
         if is_cancelled_game_request(game_request):
             game_request = None
         if game_request:
-            from handle_bridge import HANDLE_GAME_PROMPT
+            from games.word_games.handle.bridge import HANDLE_GAME_PROMPT
             game_prompt = HANDLE_GAME_PROMPT
             game_label = "汉兜"
 
@@ -1214,7 +1214,7 @@ def proactive_speak(ctx: ConversationContext, vad_model=None, cable_index=None, 
     # 泰拉瑞亚：注入游戏提示词（proactive_speak 不强制注入工具，只解说）
     _terraria_tools_injected_p = False
     if not game_request and is_terraria:
-        from terraria_bridge import (
+        from games.terraria.bridge import (
             TERRARIA_GAME_PROMPT_CONTROLLER,
             TERRARIA_GAME_PROMPT_SPECTATOR,
             TERRARIA_GOAL_TOOL,
@@ -1228,7 +1228,7 @@ def proactive_speak(ctx: ConversationContext, vad_model=None, cable_index=None, 
             system_content += "\n" + TERRARIA_GAME_PROMPT_SPECTATOR
     # Kingdom Rush：纯解说，不需要工具
     if not game_request and is_kr:
-        from kingdom_rush_bridge import KR_GAME_PROMPT_CONTROLLER, KR_GAME_PROMPT_SPECTATOR
+        from games.kingdom_rush.bridge import KR_GAME_PROMPT_CONTROLLER, KR_GAME_PROMPT_SPECTATOR
         if is_game_controller(ctx, ai_speaker):
             system_content += "\n" + KR_GAME_PROMPT_CONTROLLER
         else:

@@ -3,9 +3,9 @@ Terraria Bot - TCP client for LumiBridge mod.
 Controls Lumi's character in Terraria via tModLoader.
 
 Usage:
-    python terraria_bot.py          # Auto-launch tModLoader + test movement
-    python terraria_bot.py --watch  # Connect and watch state only
-    python terraria_bot.py --no-launch  # Don't launch tModLoader, just connect
+    python -m games.terraria.bot          # Auto-launch tModLoader + test movement
+    python -m games.terraria.bot --watch  # Connect and watch state only
+    python -m games.terraria.bot --no-launch  # Don't launch tModLoader, just connect
 """
 
 import socket
@@ -23,6 +23,7 @@ import queue
 import requests
 from datetime import datetime
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -55,7 +56,10 @@ SW_RESTORE = 9
 
 TMOD_STEAM_APP_ID = "1281930"
 TMOD_PATH = r"D:\steam\steamapps\common\tModLoader"
-MOD_SOURCE_PATH = r"C:\Users\30506\Documents\My Games\Terraria\tModLoader\ModSources\LumiBridge"
+MOD_SOURCE_PATH = str(
+    Path.home() / "Documents" / "My Games" / "Terraria" /
+    "tModLoader" / "ModSources" / "LumiBridge"
+)
 PLAYER_NAME = "Lumi"
 WORLD_NAME = "Lumi的世界"
 

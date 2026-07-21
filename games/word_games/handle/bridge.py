@@ -4,7 +4,7 @@
 
 OBS 浏览器源加载 http://localhost:8770/handle.html 即可显示游戏画面。
 
-可独立运行（调试用）：python handle_bridge.py
+可独立运行（调试用）：python -m games.word_games.handle.bridge
 """
 
 import asyncio
@@ -21,8 +21,8 @@ from pathlib import Path
 from aiohttp import web
 import aiohttp
 
-import solver_client  # 求解丢独立子进程，避免重算占CPU把皮套动作挤卡（毛病三）
-from handle_engine import (
+from games.word_games import solver_client  # 求解丢独立子进程，避免重算占CPU把皮套动作挤卡（毛病三）
+from .engine import (
     PATTERN_ALL_GREEN,
     MAX_TURNS,
     ConstraintTracker,
@@ -174,7 +174,7 @@ class HandleBridge:
         self._outbox: asyncio.Queue | None = None
         self._server_loop: asyncio.AbstractEventLoop | None = None
         self._server_thread: threading.Thread | None = None
-        self.html_path = Path(__file__).parent / "handle.html"
+        self.html_path = Path(__file__).parent / "index.html"
         self._current_answer: ParsedIdiom | None = None
         self._activation_event = threading.Event()
         self._last_global_state = ""

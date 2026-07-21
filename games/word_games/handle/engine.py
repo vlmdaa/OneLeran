@@ -21,7 +21,7 @@ from pathlib import Path
 
 # ─── 常量 ───
 
-WORDS_FILE = Path(__file__).parent / "handle_words.json"
+WORDS_FILE = Path(__file__).parent / "words.json"
 WORD_LENGTH = 4
 MAX_TURNS = 6
 

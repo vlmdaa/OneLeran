@@ -3,8 +3,8 @@ Kingdom Rush AI 自动对战模块
 基于规则的决策系统，通过 KingdomRushBot TCP 连接控制游戏
 
 用法:
-    python kingdom_rush_ai.py              # 自动对战
-    python kingdom_rush_ai.py --dry-run    # 只显示决策，不执行
+    python -m games.kingdom_rush.ai              # 自动对战
+    python -m games.kingdom_rush.ai --dry-run    # 只显示决策，不执行
 """
 
 import time
@@ -17,9 +17,9 @@ import subprocess
 import ctypes
 import ctypes.wintypes
 from datetime import datetime
-from kingdom_rush_bot import KingdomRushBot
-from kr_battle_history import load_history, save_history, add_record, get_level_history
-from kr_strategy_llm import call_llm_for_strategy
+from .bot import KingdomRushBot
+from .battle_history import load_history, save_history, add_record, get_level_history
+from .strategy_llm import call_llm_for_strategy
 
 # ========== 游戏启动 ==========
 GAME_EXE = r"C:\Games\Kingdom Rush 1\Kingdom Rush.exe"
@@ -1111,7 +1111,7 @@ class KingdomRushAI:
 
     def _compute_wave_bias(self, ctx, target):
         try:
-            from kr_strategy_llm import decide_wave_bias
+            from .strategy_llm import decide_wave_bias
             bias = decide_wave_bias(ctx)
         except Exception:
             bias = None

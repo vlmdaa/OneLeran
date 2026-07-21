@@ -46,17 +46,19 @@ arbiter**. Everything is coordinated over an **event bus** anchored to a global
 | Realtime voice | `realtime_chat.py`, `realtime_chat_protocol.py` | Dual end-to-end session pool over doubao SC2.0; attribution; audio routing; cross-character history mirroring. |
 | Turn orchestration | `conversation.py`, `web_search.py`, `viewer_name.py` | Drives a turn for the text pipeline and formats the cross-character mirror messages; augments a reply with live web search when the turn needs it, and normalizes / folds viewer names before they reach the model. |
 | Brain | `fast_brain.py` | Per-character lightweight LLM for tool-driven decisions (e.g. game moves). |
-| Voice out | `lumi_tts.py`, `cosyvoice_tts.py`, `tts_emitter.py`, `run_architecture.py` | Streaming TTS with voice-cloned timbres; `run_architecture.py` is the single source of truth for the text-vs-realtime pipeline that `tts_emitter.py` follows to pick the output path. |
+| Voice out | `lumi_tts.py`, `cosyvoice_tts.py`, `tts_emitter.py`, `run_architecture.py`, `voice_registry.py` | Streaming TTS with user-supplied voice ids; `run_architecture.py` selects the text-vs-realtime path, while the public voice registry reads local environment variables and never contains production voice ids. |
 | Voice in | `lumi_asr.py` | Streaming speech recognition. |
-| Memory | `memory/` | Per-viewer and self memory in SQLite, distilled by an LLM extractor/summarizer. |
-| Games | `buckshot_*.py`, `terraria_*.py`, `kingdom_rush_*.py`, `wordle_*.py`, `handle_*.py` | Game segments the AIs play over a bridge while narrating. Buckshot Roulette (turn-based), Terraria (A* pathfinding + five-layer goal planner over a tModLoader mod; see `terraria-behavior-tree.md`), Kingdom Rush (tower-defense AI via a LuaJIT mod reverse-engineered into the game's LÖVE engine; see `kingdom-rush-reverse-engineering.md`), and two word games — Wordle and Handle (汉兜, a Chinese-idiom Wordle), each a self-contained web frontend + an entropy solver that runs in a separate worker process (`solver_worker.py` / `solver_client.py`) so the heavy mid-game search never stalls the main loop. Kingdom Rush pairs its algorithmic tower-placement skeleton with a per-wave LLM strategist (`kr_strategy_llm.py`) that reads the in-game bestiary and adapts the build to each wave. |
+| Memory | `memory/` | Per-viewer and self memory in SQLite, distilled by an LLM extractor/summarizer. `decay.py` hides stale unpinned facts at read time without deleting them; `guard_facts.py` deterministically protects membership identity facts. The database itself is never published. |
+| Games | `games/` | Game segments grouped by integration: Buckshot Roulette, Terraria (A* pathfinding + five-layer goal planner; see `docs/games/terraria-behavior-tree.md`), Kingdom Rush (LuaJIT bridge and per-wave LLM strategist; see `docs/games/kingdom-rush-reverse-engineering.md`), and the Wordle/Handle frontends with a shared isolated entropy-solver worker. Commercial game binaries are not included. |
 | Per-character config | `voice_config.py` | Voice, avatar model, subtitle, audio routing (placeholder example characters). |
 
 ## Configuration and credentials
 
 `voice_config.py` holds per-character runtime config; the example characters ship
-with placeholder values. All API keys are read from environment variables (see
-`.env.example`) — none are stored in the repository.
+with placeholder values. `voice_registry.py` resolves optional cloned voices from
+the user's environment and falls back safely when none are supplied. All API keys
+are read from environment variables (see `.env.example`) — none are stored in the
+repository.
 
 ## What's here, and what's not
 
@@ -68,6 +70,7 @@ Intentionally **not** included:
 
 - The characters' persona prompts, IP and worldview (the closed "soul").
 - The Live2D avatar / motion / expression layer — tied to specific character models.
+- Production voice ids, voiceprints, viewer databases, logs and operations data.
 - The commercial game binaries the game bridge talks to.
 - The remaining game bot (Fireboy & Watergirl), vision, drawing, and the live
   director / control console — opened incrementally over time.

@@ -16,8 +16,8 @@ import pickle
 import struct
 import sys
 
-import wordle_engine
-import handle_engine
+from games.word_games.wordle import engine as wordle_engine
+from games.word_games.handle import engine as handle_engine
 
 _SOLVERS = {
     "wordle": wordle_engine.get_best_guesses,

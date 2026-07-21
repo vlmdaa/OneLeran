@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Optional
 
 # 词库文件路径
-WORDS_FILE = Path(__file__).parent / "wordle_words.json"
+WORDS_FILE = Path(__file__).parent / "words.json"
 
 # 预计算的最优开局词（信息熵最高）
 OPTIMAL_FIRST_GUESS = "salet"

@@ -4,7 +4,7 @@ Wordle 游戏桥接模块 - 作为 Lumi 子模块运行
 
 OBS 浏览器源加载 http://localhost:8770/wordle.html 即可显示游戏画面。
 
-可独立运行（调试用）：python wordle_bridge.py
+可独立运行（调试用）：python -m games.word_games.wordle.bridge
 """
 
 import asyncio
@@ -21,7 +21,7 @@ from pathlib import Path
 from aiohttp import web
 import aiohttp
 
-from wordle_engine import (
+from .engine import (
     OPTIMAL_FIRST_GUESS,
     PATTERN_ALL_GREEN,
     ConstraintTracker,
@@ -173,7 +173,7 @@ class WordleBridge:
         self._outbox: asyncio.Queue | None = None  # 发送队列（在 server loop 上创建）
         self._server_loop: asyncio.AbstractEventLoop | None = None
         self._server_thread: threading.Thread | None = None
-        self.html_path = Path(__file__).parent / "wordle.html"
+        self.html_path = Path(__file__).parent / "index.html"
         self._current_answer: str | None = None
         self._activation_event = threading.Event()
         self._last_global_state = ""
