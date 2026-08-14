@@ -6,6 +6,11 @@ __pycache__/
 venv/
 .env
 
+# tModLoader build output
+games/terraria/mod/**/bin/
+games/terraria/mod/**/obj/
+*.tmod
+
 # Secrets / runtime (never commit)
 config.py
 *token*.txt

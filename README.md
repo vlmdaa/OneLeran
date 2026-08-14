@@ -56,7 +56,7 @@ files below.
 - **Playing games** (`games/`) — bridges that let the AIs play games as stream
   segments, making decisions and calling tools while they narrate. **Buckshot
   Roulette** (turn-based), **Terraria** (**A\* pathfinding** + a **five-layer goal
-  planner** over a tModLoader mod), **Kingdom Rush** — a tower-defense AI driven by a
+  planner** over a bundled, focus-safe tModLoader mod), **Kingdom Rush** — a tower-defense AI driven by a
   **LuaJIT mod reverse-engineered into the game's LÖVE engine** (see
   [reverse-engineering notes](docs/games/kingdom-rush-reverse-engineering.md))
   — and two word games, **Wordle** and **Handle** (汉兜, a Chinese-idiom Wordle), each
@@ -120,7 +120,8 @@ intentionally kept closed.
 - **A Live2D model** — the avatar / motion / expression layer is tied to specific
   character models and is **not** included; bring your own and wire it in.
 - **The game** — the game bridge talks to a commercial game over TCP; you supply
-  the game itself.
+  the game itself. The Terraria-side LumiBridge mod source is included and built
+  by the bot; see [its setup guide](games/terraria/mod/README.md).
 - **Personas** — `voice_config.py` ships placeholder example characters; the real
   Lumi / Nox persona prompts and worldview are intentionally closed.
 

@@ -6,6 +6,7 @@ Usage:
     python -m games.terraria.bot          # Auto-launch tModLoader + test movement
     python -m games.terraria.bot --watch  # Connect and watch state only
     python -m games.terraria.bot --no-launch  # Don't launch tModLoader, just connect
+    python -m games.terraria.bot --skip-build # Use an already-installed LumiBridge mod
 """
 
 import socket
@@ -55,11 +56,12 @@ WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.wintypes.HWND, ctypes.win
 SW_RESTORE = 9
 
 TMOD_STEAM_APP_ID = "1281930"
-TMOD_PATH = r"D:\steam\steamapps\common\tModLoader"
-MOD_SOURCE_PATH = str(
-    Path.home() / "Documents" / "My Games" / "Terraria" /
-    "tModLoader" / "ModSources" / "LumiBridge"
+TMOD_PATH = os.getenv("TMODLOADER_PATH", r"D:\steam\steamapps\common\tModLoader")
+MOD_SOURCE_PATH = os.getenv(
+    "LUMIBRIDGE_SOURCE_PATH",
+    str(Path(__file__).resolve().parent / "mod" / "LumiBridge"),
 )
+EXPECTED_MOD_VERSION = "5.3"
 PLAYER_NAME = "Lumi"
 WORLD_NAME = "Lumi的世界"
 
@@ -99,11 +101,16 @@ def activate_terraria():
 def build_mod():
     """Build LumiBridge mod before launching. Ensures latest code is compiled."""
     if not os.path.exists(MOD_SOURCE_PATH):
-        print(f"Mod 源码目录不存在: {MOD_SOURCE_PATH}，跳过构建")
+        print(f"Mod 源码目录不存在: {MOD_SOURCE_PATH}")
         return False
 
-    print("正在构建 LumiBridge Mod...")
     dotnet_dll = os.path.join(TMOD_PATH, "tModLoader.dll")
+    if not os.path.isfile(dotnet_dll):
+        print(f"未找到 tModLoader.dll: {dotnet_dll}")
+        print("请设置 TMODLOADER_PATH 为本机 tModLoader 安装目录")
+        return False
+
+    print(f"正在从仓库源码构建 LumiBridge Mod: {MOD_SOURCE_PATH}")
     try:
         result = subprocess.run(
             ["dotnet", dotnet_dll, "-build", MOD_SOURCE_PATH],
@@ -6083,6 +6090,7 @@ def main():
                                           "survival"], default="task",
                         help="测试模式: walk/behavior/task/obstacle/explore/batch1-3/wings/base/survival")
     parser.add_argument("--no-launch", action="store_true", help="不启动 tModLoader，仅连接")
+    parser.add_argument("--skip-build", action="store_true", help="跳过构建，使用已安装的 LumiBridge Mod")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=9877)
     args = parser.parse_args()
@@ -6092,8 +6100,10 @@ def main():
     print("  Ctrl+C 退出")
     print("=" * 50)
 
-    # Step 0: Build mod (ensure latest code)
-    build_mod()
+    # Step 0: Build the bundled mod so background input support is always current.
+    if not args.skip_build and not build_mod():
+        print("\nLumiBridge Mod 构建失败，已停止启动，避免连接到缺少失焦控制修复的旧版本。")
+        return
 
     # Step 1: Launch tModLoader if needed
     if not args.no_launch:
@@ -6153,7 +6163,6 @@ def main():
     print(f"已进入世界! 玩家: {bridge.state.player.name}")
 
     # Version check — ensure mod is up to date
-    EXPECTED_MOD_VERSION = "5.3"
     _mod_version = [None]
     def _catch_pong(msg):
         # pong format: {"type":"event", "event":"pong", "data":{"tick":..., "version":"5.1"}}
@@ -6166,11 +6175,14 @@ def main():
     mod_version = _mod_version[0] or "unknown"
     if mod_version != EXPECTED_MOD_VERSION:
         print(f"\n  ⚠ Mod 版本不匹配! 游戏内: {mod_version}, 期望: {EXPECTED_MOD_VERSION}")
-        print(f"  请重启游戏加载最新 mod")
+        print("  请退出并重启 tModLoader，让刚构建的 Mod 生效。已停止自动控制。")
+        bridge.disconnect()
+        return
     else:
         print(f"  Mod 版本: {mod_version} ✓")
 
-    # Step 4: Activate Terraria window so game runs
+    # Step 4: Activate once for initial compatibility. The bundled Mod keeps
+    # control updates running after this window loses focus.
     time.sleep(0.5)
     activate_terraria()
     time.sleep(0.5)
